@@ -28,5 +28,8 @@ class Image(models.Model):
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
 
+    class Meta:
+        ordering = ["-id"]
+
     def get_absolute_url(self):
         return reverse("images:detail", args=[self.id, self.slug])
