@@ -127,3 +127,19 @@ class ImageCreateView(ModelMixinTestCase, TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
+
+    def test_image_list_templates_used(self):
+        self.client.login(username="john", password="johnpassword")
+        self.create_images(5)
+        response = self.client.get(reverse("images:list"))
+        self.assertTemplateUsed(
+            response, "images/image/list.html", "images/image/list_ajax.html"
+        )
+
+    def test_images_list_renders_first_page_when_page_not_an_integer(self):
+        self.client.login(username="john", password="johnpassword")
+        response = self.client.get(
+            reverse("images:list"),
+            {"images": self.create_images(30)},
+        )
+        self.assertEqual(response.context.get("images").number, 1)
