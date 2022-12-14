@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from pathlib import Path
 import environ
+from django.urls import reverse_lazy
 
 env = environ.Env()
 environ.Env.read_env()
@@ -113,6 +114,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+ABSOLUTE_URL_OVERRIDES = {
+    "auth.user": lambda u: reverse_lazy("user_detail", args=[u.username])
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
