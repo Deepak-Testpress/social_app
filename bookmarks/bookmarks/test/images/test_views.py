@@ -75,6 +75,7 @@ class ImageCreateView(ModelMixinTestCase, TestCase):
         response = self.client.post(
             reverse("images:like"),
             {"id": 1, "action": "like"},
+            **{"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"}
         )
 
         self.assertEqual(response.content.decode(), '{"status": "ok"}')
@@ -92,11 +93,13 @@ class ImageCreateView(ModelMixinTestCase, TestCase):
         self.client.post(
             reverse("images:like"),
             {"id": 1, "action": "like"},
+            **{"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"}
         )
 
         response = self.client.post(
             reverse("images:like"),
             {"id": 1, "action": "unlike"},
+            **{"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"}
         )
 
         self.assertEqual(response.content.decode(), '{"status": "ok"}')
@@ -111,6 +114,16 @@ class ImageCreateView(ModelMixinTestCase, TestCase):
             image="https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Berlin_Opera_UdL_asv2018-05.jpg/800px-Berlin_Opera_UdL_asv2018-05.jpg",
         )
         response = self.client.post(
-            reverse("images:like"), {"id": "None", "action": "None"}
+            reverse("images:like"),
+            {"id": "None", "action": "None"},
+            **{"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"}
         )
         self.assertEqual(response.content.decode(), '{"status": "error"}')
+
+    def test_image_like_returns_400_when_directly_called_with_url(self):
+        self.client.login(username="john", password="johnpassword")
+        response = self.client.post(
+            reverse("images:like"),
+        )
+
+        self.assertEqual(response.status_code, 400)
