@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.urls import reverse
 from django.contrib.auth.models import User
 from account.models import Profile
 from images.models import Image
@@ -22,3 +23,9 @@ class ModelMixinTestCase(TestCase):
             )
             images.append(image)
         return images
+
+    def view_image(self, image_id, image_slug, count):
+        for _ in range(count):
+            self.client.get(
+                reverse("images:detail", args=[image_id, image_slug])
+            )
