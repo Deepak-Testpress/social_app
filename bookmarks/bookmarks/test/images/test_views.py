@@ -143,3 +143,31 @@ class ImageCreateView(ModelMixinTestCase, TestCase):
             {"images": self.create_images(30)},
         )
         self.assertEqual(response.context.get("images").number, 1)
+
+
+class ImagesDisplayView(ModelMixinTestCase, TestCase):
+    def test_images_display(self):
+        self.client.login(username="john", password="johnpassword")
+        zero_like_image = Image.objects.create(
+            user=self.user,
+            title="first-image",
+            slug="first-image",
+            image="https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Berlin_Opera_UdL_asv2018-05.jpg/800px-Berlin_Opera_UdL_asv2018-05.jpg",
+        )
+
+        one_like_image = Image.objects.create(
+            user=self.user,
+            title="second-image",
+            slug="second-image",
+            image="https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Berlin_Opera_UdL_asv2018-05.jpg/800px-Berlin_Opera_UdL_asv2018-05.jpg",
+        )
+        self.client.post(
+            reverse("images:like"),
+            {"id": one_like_image.id, "action": "like"},
+            **{"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"}
+        )
+        Image_list_view = self.client.get(reverse("images:list"))
+        self.assertQuerysetEqual(
+            Image_list_view.context.get("images"),
+            [one_like_image, zero_like_image],
+        )
